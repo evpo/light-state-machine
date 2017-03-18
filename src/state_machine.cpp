@@ -5,7 +5,7 @@
 #include <string>
 
 #ifdef TRACE_STATE_MACHINE
-#include <iostream>
+#include "plog/Log.h"
 #endif
 
 using namespace std;
@@ -17,7 +17,7 @@ namespace
     void DebugPrintState(StateID state_id)
     {
         string str = PrintStateID(state_id);
-        std::cout << str << std::endl;
+        LOG_DEBUG << str;
     }
 #else
     void DebugPrintState(StateID)

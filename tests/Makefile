@@ -12,6 +12,7 @@ endif
 LOADLIBES += ../deps/gtest/googletest/build/libgtest.a -lpthread -lm
 CXXFLAGS += -I../deps/gtest/googletest/include -pthread -std=c++11 -Wall -Wextra
 CXXFLAGS += -I../include -I../include/internal -I../deps/stlplus/containers
+CXXFLAGS += -I../deps/plog/include
 
 LDFLAGS += -Wall
 
