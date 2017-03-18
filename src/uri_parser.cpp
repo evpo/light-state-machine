@@ -7,6 +7,8 @@
 #include "graph_builder.h"
 
 using namespace std;
+using namespace LightStateMachine;
+using namespace LightStateMachine::Client;
 
 namespace UriParser
 {
@@ -19,7 +21,7 @@ namespace UriParser
         };
         auto graph_info = BuildStateGraph();
         std::vector<string> tokens = Tokenize(str);
-        Context context;
+        Client::Context context;
         if(!context.Initialize(tokens))
             return invalid_result;
         assert(graph_info.state_graph->size() > 0);

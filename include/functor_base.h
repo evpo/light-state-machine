@@ -5,10 +5,10 @@
 #include "context.h"
 #include "utility.h"
 
-namespace UriParser
+namespace LightStateMachine
 {
-    typedef bool (*RawBoolFunc)(Context &);
-    typedef void (*RawVoidFunc)(Context &);
+    typedef bool (*RawBoolFunc)(Client::Context &);
+    typedef void (*RawVoidFunc)(Client::Context &);
 
     class Func: private NonCopyable
     {
@@ -25,9 +25,9 @@ namespace UriParser
     class BoolFunc : public Func
     {
         protected:
-            virtual bool Act(Context& context) = 0;
+            virtual bool Act(Client::Context& context) = 0;
         public:
-            bool operator()(Context& context)
+            bool operator()(Client::Context& context)
             {
                 return Act(context);
             }
@@ -36,9 +36,9 @@ namespace UriParser
     class VoidFunc : public Func
     {
     protected:
-        virtual void Act(Context& context) = 0;
+        virtual void Act(Client::Context& context) = 0;
     public:
-        void operator()(Context& context)
+        void operator()(Client::Context& context)
         {
             Act(context);
         }
@@ -53,7 +53,7 @@ namespace UriParser
             return func;
         }
     protected:
-        virtual void Act(Context&) override
+        virtual void Act(Client::Context&) override
         {
         }
     };
@@ -67,7 +67,7 @@ namespace UriParser
             return func;
         }
     protected:
-        virtual bool Act(Context &) override
+        virtual bool Act(Client::Context &) override
         {
             return true;
         }
@@ -83,7 +83,7 @@ namespace UriParser
                 return func;
             }
         protected:
-            virtual bool Act(Context &) override
+            virtual bool Act(Client::Context &) override
             {
                 return false;
             }
@@ -99,7 +99,7 @@ namespace UriParser
             {
             }
         protected:
-            virtual bool Act(Context &context)
+            virtual bool Act(Client::Context &context)
             {
                 return func_(context);
             }
@@ -115,7 +115,7 @@ namespace UriParser
             {
             }
         protected:
-            virtual void Act(Context &context)
+            virtual void Act(Client::Context &context)
             {
                 func_(context);
             }

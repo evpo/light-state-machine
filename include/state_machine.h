@@ -6,21 +6,21 @@
 #include "state_graph.h"
 #include "utility.h"
 
-namespace UriParser
+namespace LightStateMachine
 {
     class StateMachine : private NonCopyable
     {
         public:
-            bool Initialize(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Context &context);
+            bool Initialize(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Client::Context &context);
             bool NextState();
-            StateID CurrentState() const;
-            StateID PreviousState() const;
+            Client::StateID CurrentState() const;
+            Client::StateID PreviousState() const;
         private:
             void SetCurrentState(StateGraph::iterator new_state);
             StateGraph *state_graph_;
             StateGraph::iterator current_state_;
             StateGraph::iterator fail_state_;
-            Context *context_;
-            std::queue<StateID> state_queue_;
+            Client::Context *context_;
+            std::queue<Client::StateID> state_queue_;
     };
 }

@@ -2,7 +2,8 @@
 #include <memory>
 #include "state_machine.h"
 
-namespace UriParser
+using namespace LightStateMachine::Client;
+namespace LightStateMachine
 {
     namespace UnitTests
     {

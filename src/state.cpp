@@ -1,6 +1,8 @@
 #include "state.h"
 
-namespace UriParser
+using namespace LightStateMachine::Client;
+
+namespace LightStateMachine
 {
     void State::Initialize(StateID id, VoidFunc &on_enter, VoidFunc &on_exit,
             BoolFunc &can_enter, BoolFunc &can_exit)

@@ -9,23 +9,24 @@
 #endif
 
 using namespace std;
+using namespace LightStateMachine::Client;
 
 namespace
 {
 #ifdef TRACE_STATE_MACHINE
-    void DebugPrintState(UriParser::StateID state_id)
+    void DebugPrintState(StateID state_id)
     {
-        string str = UriParser::PrintStateID(state_id);
+        string str = PrintStateID(state_id);
         std::cout << str << std::endl;
     }
 #else
-    void DebugPrintState(UriParser::StateID)
+    void DebugPrintState(StateID)
     {
     }
 #endif
 }
 
-namespace UriParser
+namespace LightStateMachine
 {
 
     unsigned kQueueSize = 3U;

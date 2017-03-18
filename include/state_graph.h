@@ -2,7 +2,7 @@
 #include "digraph.hpp"
 #include "state.h"
 
-namespace UriParser
+namespace LightStateMachine
 {
     typedef stlplus::digraph<State,bool> StateGraph;
 }

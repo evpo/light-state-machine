@@ -3,6 +3,8 @@
 #include "alphabet.h"
 
 using namespace std;
+using namespace LightStateMachine;
+using namespace LightStateMachine::Client;
 
 namespace UriParser
 {

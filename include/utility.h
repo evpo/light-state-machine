@@ -1,5 +1,5 @@
 #pragma once
-namespace UriParser
+namespace LightStateMachine
 {
     class NonCopyable
     {

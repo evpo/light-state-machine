@@ -5,9 +5,9 @@ namespace UriParser
 {
     struct StateGraphInfo
     {
-        StateGraph *state_graph;
-        StateGraph::iterator start_node;
-        StateGraph::iterator fail_node;
+        LightStateMachine::StateGraph *state_graph;
+        LightStateMachine::StateGraph::iterator start_node;
+        LightStateMachine::StateGraph::iterator fail_node;
     };
 
     // The graph of states is built here.

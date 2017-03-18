@@ -2,6 +2,9 @@
 #include <memory>
 #include "state_handlers.h"
 
+using namespace LightStateMachine;
+using namespace LightStateMachine::Client;
+
 namespace UriParser
 {
     template<class T>

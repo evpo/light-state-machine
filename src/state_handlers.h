@@ -4,6 +4,7 @@
 #pragma once
 #include "functor_base.h"
 
+#define Context LightStateMachine::Client::Context
 namespace UriParser
 {
     bool NotEOS(Context &context);
@@ -31,3 +32,4 @@ namespace UriParser
     bool SharpCanEnter(Context &context);
     void FragmentOnEnter(Context &context);
 }
+#undef Context

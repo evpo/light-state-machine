@@ -5,6 +5,7 @@
 #include "context.h"
 
 using namespace std;
+using namespace LightStateMachine::Client;
 namespace UriParser
 {
     namespace UnitTests
