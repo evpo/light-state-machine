@@ -1,14 +1,14 @@
-#Light State Machine
+# Light State Machine
 
 Simple state machine for different purposes. It comes with an example uri parser implementation that uses the state machine to parse URI's.
 
-##System requirements
+## System requirements
 
     Linux
     Mingw
     C++11 g++ or clang
 
-##Compile
+## Compile
 
 Build:
 
@@ -30,12 +30,12 @@ Tests:
 
     make tests
 
-##Acknowledgments
+## Acknowledgments
 
 1. [stlplus](http://stlplus.sourceforge.net/)
 2. [gtest](https://github.com/google/googletest)
 3. [plog](https://github.com/SergiusTheBest/plog)
 
-##License
+## License
 
 Creative Commons BSD License
