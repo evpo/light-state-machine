@@ -5,3 +5,5 @@ GNULINUX-*
 MACOS-*
 *.swp
 *.log
+cscope.out
+cscope.files

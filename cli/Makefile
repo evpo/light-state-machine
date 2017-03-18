@@ -17,5 +17,5 @@ else
 TARGETDIR := ../../bin/debug
 endif
 
-IMAGENAME := $(TARGETDIR)/cpp-project
+IMAGENAME := $(TARGETDIR)/uri-parser
 include ../deps/makefiles/gcc.mak
