@@ -1,18 +1,8 @@
 [![Build Status](https://travis-ci.org/evpo/cpp-project-template.svg?branch=master)](https://travis-ci.org/evpo/cpp-project-template)
 
-#Project template
+#Light State Machine
 
-This is a template for a C++ project. It's a good starting point. Clone and start hacking.
-
-    git clone https://github.com/evpo/cpp-project-template.git cpp_project
-
-CLI:
-
-    ./bin/debug/cpp-project
-
-Unit tests:
-
-    ./bin/debug/cpp-project-tests
+Simple state machine for different purposes. It comes with an example uri parser implementation that uses the state machine to parse URI's.
 
 ##System requirements
 
@@ -37,6 +27,10 @@ Verbose:
 Clean:
 
     make clean
+
+Tests:
+
+    make tests
 
 ##Acknowledgments
 
