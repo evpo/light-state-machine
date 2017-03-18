@@ -9,7 +9,7 @@ install:
 script:
     - make
     - make tests
-    - ./bin/debug/cpp-project-tests
+    - ./bin/debug/uri-parser-tests
 addons:
     apt:
         sources:
