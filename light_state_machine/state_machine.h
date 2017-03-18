@@ -11,7 +11,7 @@ namespace LightStateMachine
     class StateMachine : private NonCopyable
     {
         public:
-            bool Initialize(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Client::Context &context);
+            StateMachine(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Client::Context &context);
             bool NextState();
             Client::StateID CurrentState() const;
             Client::StateID PreviousState() const;

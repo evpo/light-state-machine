@@ -26,8 +26,9 @@ namespace LightStateMachine
         {
             public:
                 int count_;
+                std::vector<std::string> tokens_;
             protected:
-                StateMachine state_machine_;
+                std::unique_ptr<StateMachine> state_machine_;
                 StateGraph graph_;
                 State start_state_;
                 State left_state_;
@@ -37,22 +38,33 @@ namespace LightStateMachine
                 CounterFunc counter_;
                 Context context_;
 
+                StateMachineFixture()
+                    :state_machine_(nullptr),
+                    start_state_(StateID::Fail),
+                    left_state_(StateID::Fail),
+                    right_state_(StateID::Fail),
+                    end_state_(StateID::End),
+                    fail_state_(StateID::Fail),
+                    context_(tokens_)
+                {
+                }
+
                 virtual void SetUp()
                 {
                     count_ = 0;
                     counter_.SetFail(false);
-                    start_state_.Initialize(StateID::Start, counter_);
-                    fail_state_.Initialize(StateID::Fail, StubVoidFunc::Instance(), StubVoidFunc::Instance(),
+                    start_state_ = State(StateID::Start, counter_);
+                    fail_state_ = State(StateID::Fail, StubVoidFunc::Instance(), StubVoidFunc::Instance(),
                             TrueBoolFunc::Instance(), FalseBoolFunc::Instance());
 
                     // Cannot enter
-                    left_state_.Initialize(StateID::Scheme, counter_, StubVoidFunc::Instance(),
+                    left_state_ = State(StateID::Scheme, counter_, StubVoidFunc::Instance(),
                             FalseBoolFunc::Instance());
 
                     // Can enter
-                    right_state_.Initialize(StateID::Colon, counter_, StubVoidFunc::Instance());
+                    right_state_ = State(StateID::Colon, counter_, StubVoidFunc::Instance());
 
-                    end_state_.Initialize(StateID::End, counter_, StubVoidFunc::Instance(),
+                    end_state_ = State(StateID::End, counter_, StubVoidFunc::Instance(),
                             TrueBoolFunc::Instance(), FalseBoolFunc::Instance());
                     counter_.Initialize(this);
 
@@ -65,7 +77,7 @@ namespace LightStateMachine
                     auto right = graph_.insert(right_state_);
                     graph_.arc_insert(start, right);
                     graph_.arc_insert(right, end);
-                    state_machine_.Initialize(graph_, start, fail, context_);
+                    state_machine_ = std::unique_ptr<StateMachine>(new StateMachine(graph_, start, fail, context_));
                 }
 
                 virtual void TearDown()
@@ -97,12 +109,12 @@ namespace LightStateMachine
         TEST_F(StateMachineFixture, When_cannot_enter_Enter_another_output_state)
         {
             // Arrange
-            StateID initial_state = state_machine_.CurrentState();
+            StateID initial_state = state_machine_->CurrentState();
             // Act
-            bool result = state_machine_.NextState();
-            StateID next_state = state_machine_.CurrentState();
-            bool result2 = state_machine_.NextState();
-            StateID final_state = state_machine_.CurrentState();
+            bool result = state_machine_->NextState();
+            StateID next_state = state_machine_->CurrentState();
+            bool result2 = state_machine_->NextState();
+            StateID final_state = state_machine_->CurrentState();
 
             // Assert
             ASSERT_EQ(StateID::Start, initial_state);
@@ -116,10 +128,10 @@ namespace LightStateMachine
         {
             // Arrange
             // Act
-            bool result1 = state_machine_.NextState();
-            bool result2 = state_machine_.NextState();
-            bool result3 = state_machine_.NextState();
-            bool result4 = state_machine_.NextState();
+            bool result1 = state_machine_->NextState();
+            bool result2 = state_machine_->NextState();
+            bool result3 = state_machine_->NextState();
+            bool result4 = state_machine_->NextState();
 
             // Assert
             ASSERT_TRUE(result1);
@@ -134,11 +146,11 @@ namespace LightStateMachine
             counter_.SetFail(true);
 
             // Act
-            bool result1 = state_machine_.NextState();
-            StateID state1 = state_machine_.CurrentState();
-            bool result2 = state_machine_.NextState();
-            StateID state2 = state_machine_.CurrentState();
-            bool result3 = state_machine_.NextState();
+            bool result1 = state_machine_->NextState();
+            StateID state1 = state_machine_->CurrentState();
+            bool result2 = state_machine_->NextState();
+            StateID state2 = state_machine_->CurrentState();
+            bool result3 = state_machine_->NextState();
 
             // Assert
             ASSERT_TRUE(result1);

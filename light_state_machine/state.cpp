@@ -4,14 +4,15 @@ using namespace LightStateMachine::Client;
 
 namespace LightStateMachine
 {
-    void State::Initialize(StateID id, VoidFunc &on_enter, VoidFunc &on_exit,
+    State::State(StateID id, VoidFunc &on_enter, VoidFunc &on_exit,
             BoolFunc &can_enter, BoolFunc &can_exit)
+        :
+        state_id_(id),
+        on_enter_(&on_enter),
+        on_exit_(&on_exit),
+        can_enter_(&can_enter),
+        can_exit_(&can_exit)
     {
-        state_id_ = id;
-        on_enter_ = &on_enter;
-        on_exit_ = &on_exit;
-        can_enter_ = &can_enter;
-        can_exit_ = &can_exit;
     }
 
     StateID State::GetID() const

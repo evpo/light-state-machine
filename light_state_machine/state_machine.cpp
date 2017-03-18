@@ -30,13 +30,13 @@ namespace LightStateMachine
 {
 
     unsigned kQueueSize = 3U;
-    bool StateMachine::Initialize(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Context &context)
+    StateMachine::StateMachine(StateGraph &state_graph, StateGraph::iterator current_state, StateGraph::iterator fail_state, Context &context)
+        :
+            state_graph_(&state_graph),
+            current_state_(current_state),
+            fail_state_(fail_state),
+            context_(&context)
     {
-        state_graph_ = &state_graph;
-        current_state_ = current_state;
-        fail_state_ = fail_state;
-        context_ = &context;
-        return true;
     }
 
     bool StateMachine::NextState()

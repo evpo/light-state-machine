@@ -37,12 +37,11 @@ namespace UriParser
         return CreateFunc<VoidFuncAdaptor>(raw_func);
     }
 
-    State CreateState(StateID id, 
+    State CreateState(StateID id,
             VoidFunc &on_enter = StubVoidFunc::Instance(), VoidFunc &on_exit = StubVoidFunc::Instance(),
             BoolFunc &can_enter = TrueBoolFunc::Instance(), BoolFunc &can_exit = TrueBoolFunc::Instance())
     {
-        State state;
-        state.Initialize(id, on_enter, on_exit, can_enter, can_exit);
+        State state(id, on_enter, on_exit, can_enter, can_exit);
         return state;
     }
 

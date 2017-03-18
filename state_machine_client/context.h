@@ -25,10 +25,10 @@ namespace LightStateMachine
             TokenPosition current_token_;
             std::stack<TokenPosition> token_position_stack_;
             public:
-            Context();
+            Context(const std::vector<std::string> &tokens);
+            bool IsEmpty() const;
             bool GetFailed() const;
             void SetFailed(bool value);
-            bool Initialize(const std::vector<std::string> &tokens);
 
             // Moves the current token
             // Returns false on EOS

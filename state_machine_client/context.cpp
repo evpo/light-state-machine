@@ -8,9 +8,16 @@ namespace LightStateMachine
 {
     namespace Client
     {
-        Context::Context():
+        Context::Context(const std::vector<std::string> &tokens):
             failed_(false), uri_(new Uri())
         {
+            tokens_ = tokens;
+            current_token_ = tokens_.begin();
+        }
+
+        bool Context::IsEmpty() const
+        {
+            return tokens_.empty();
         }
 
         bool Context::GetFailed() const
@@ -21,16 +28,6 @@ namespace LightStateMachine
         void Context::SetFailed(bool value)
         {
             failed_ = value;
-        }
-
-        bool Context::Initialize(const std::vector<std::string> &tokens)
-        {
-            if(tokens.size() == 0)
-                return false;
-
-            tokens_ = tokens;
-            current_token_ = tokens_.begin();
-            return true;
         }
 
         bool Context::NextToken()

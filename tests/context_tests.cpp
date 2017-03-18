@@ -24,8 +24,7 @@ namespace UriParser
                         ":",
                         "/"
                     };
-                    context_ = unique_ptr<Context>(new Context());
-                    context_->Initialize(tokens);
+                    context_ = unique_ptr<Context>(new Context(tokens));
                 }
 
                 virtual void TearDown()

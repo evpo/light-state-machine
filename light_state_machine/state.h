@@ -10,7 +10,7 @@ namespace LightStateMachine
     class State
     {
         public:
-            void Initialize(Client::StateID id,
+            State(Client::StateID id,
                     VoidFunc &on_enter = StubVoidFunc::Instance(), VoidFunc &on_exit = StubVoidFunc::Instance(),
                     BoolFunc &can_enter = TrueBoolFunc::Instance(), BoolFunc &can_exit = TrueBoolFunc::Instance());
             Client::StateID GetID() const;

@@ -21,13 +21,11 @@ namespace UriParser
         };
         auto graph_info = BuildStateGraph();
         std::vector<string> tokens = Tokenize(str);
-        Client::Context context;
-        if(!context.Initialize(tokens))
+        Client::Context context(tokens);
+        if(context.IsEmpty())
             return invalid_result;
         assert(graph_info.state_graph->size() > 0);
-        StateMachine state_machine;
-        bool flag = state_machine.Initialize(*graph_info.state_graph, graph_info.start_node, graph_info.fail_node, context);
-        assert(flag);
+        StateMachine state_machine(*graph_info.state_graph, graph_info.start_node, graph_info.fail_node, context);
         while(state_machine.NextState())
         {
         }
