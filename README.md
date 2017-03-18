@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/evpo/light-state-machine.svg?branch=master)](https://travis-ci.org/evpo/light-state-machine)
+
 # Light State Machine
 
 This is a simple generic state machine. It comes with an example URI parser implementation that uses the state machine to parse URI's.
