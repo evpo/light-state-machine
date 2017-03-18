@@ -1,7 +1,9 @@
 -D_DEBUG
 -I./include
 -I./cli
--I./src
+-I./light_state_machine
+-I./state_machine_client
+-I./uri_parser
 -I./tests
 -I./deps
 -I./deps/stlplus/subsystems

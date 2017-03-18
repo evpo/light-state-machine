@@ -1,4 +1,5 @@
 #include "context.h"
+#include "uri_parser.h"
 #include "assert.h"
 
 using namespace UriParser;
@@ -8,7 +9,7 @@ namespace LightStateMachine
     namespace Client
     {
         Context::Context():
-            failed_(false)
+            failed_(false), uri_(new Uri())
         {
         }
 
@@ -59,7 +60,7 @@ namespace LightStateMachine
 
         Uri &Context::GetUri()
         {
-            return uri_;
+            return *uri_;
         }
 
         void Context::PushTokenPosition()

@@ -1,13 +1,13 @@
 include ../deps/makefiles/platform.mak
 
-LIBRARIES += ../src ../deps/stlplus/subsystems ../deps/stlplus/containers ../deps/stlplus/portability
+LIBRARIES += ../uri_parser ../light_state_machine ../state_machine_client ../deps/stlplus/subsystems ../deps/stlplus/containers ../deps/stlplus/portability
 
 ifeq ($(RELEASE),on)
 CXXFLAGS += -ggdb
 endif
 
 CXXFLAGS += -Wall -Wextra -std=c++11
-CXXFLAGS += -I../include -I../deps/plog/include
+CXXFLAGS += -I../deps/plog/include
 LDFLAGS += -Wall
 LOADLIBES += -lm
 

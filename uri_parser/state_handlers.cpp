@@ -1,5 +1,6 @@
 #include "state_handlers.h"
 #include <algorithm>
+#include "uri_parser.h"
 #include "alphabet.h"
 
 using namespace std;

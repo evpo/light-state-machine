@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "context.h"
+#include "uri_parser.h"
 
 using namespace std;
 using namespace LightStateMachine::Client;

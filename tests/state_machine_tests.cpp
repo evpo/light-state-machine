@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include <memory>
 #include "state_machine.h"
+#include "uri_parser.h"
 
 using namespace LightStateMachine::Client;
 namespace LightStateMachine

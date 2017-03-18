@@ -2,8 +2,13 @@
 #include <vector>
 #include <stack>
 #include <string>
-#include "uri_parser.h"
+#include <memory>
 #include "utility.h"
+
+namespace UriParser
+{
+    class Uri;
+}
 
 namespace LightStateMachine
 {
@@ -15,7 +20,7 @@ namespace LightStateMachine
             typedef std::vector<std::string>::const_iterator TokenPosition;
             private:
             bool failed_;
-            UriParser::Uri uri_;
+            std::unique_ptr<UriParser::Uri> uri_;
             std::vector<std::string> tokens_;
             TokenPosition current_token_;
             std::stack<TokenPosition> token_position_stack_;
