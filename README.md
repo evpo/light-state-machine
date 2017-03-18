@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/evpo/cpp-project-template.svg?branch=master)](https://travis-ci.org/evpo/cpp-project-template)
-
 #Light State Machine
 
 Simple state machine for different purposes. It comes with an example uri parser implementation that uses the state machine to parse URI's.
