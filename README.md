@@ -4,6 +4,13 @@ Simple state machine for different purposes. It comes with an example uri parser
 
 The state machine supports `CanEnter`, `CanExit`, `OnEnter`, `OnExit` event handlers. There is also a special `FailState` that can follow any state. The first state is always `StartState` and the final states are either `EndState` or `FailState`.
 
+## Use light state machine in your project
+
+1. Take cpp and h files from `light_state_machine` subdirectory
+2. Create your own `Context` class. See [StateMachineClient/context.h](StateMachineClient/context.h) for an example.
+3. Create your own `StateID` class enum. See [StateMachineClient/state_id.h](StateMachineClient/state_id.h) for an example.
+4. Build the state graph. For an example see [uri_parser/graph_builder.cpp](uri_parser/graph_builder.cpp). The graph is [`stlplus::digraph`](http://stlplus.sourceforge.net/stlplus3/docs/digraph.html) class.
+
 ## URI parser
 
 uri-parser reads the uri string from stdin.
