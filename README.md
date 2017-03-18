@@ -1,6 +1,6 @@
 # Light State Machine
 
-Simple state machine for different purposes. It comes with an example uri parser implementation that uses the state machine to parse URI's.
+This is a simple generic state machine. It comes with an example URI parser implementation that uses the state machine to parse URI's.
 
 The state machine supports `CanEnter`, `CanExit`, `OnEnter`, `OnExit` event handlers. There is also a special `FailState` that can follow any state. The first state is always `StartState` and the final states are either `EndState` or `FailState`.
 
