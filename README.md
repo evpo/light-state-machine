@@ -1,15 +1,17 @@
+[![Build Status](https://travis-ci.org/evpo/light-state-machine.svg?branch=master)](https://travis-ci.org/evpo/light-state-machine)
+
 # Light State Machine
 
-Simple state machine for different purposes. It comes with an example uri parser implementation that uses the state machine to parse URI's.
+This is a simple generic state machine. It comes with an example URI parser implementation that uses the state machine to parse URI's.
 
 The state machine supports `CanEnter`, `CanExit`, `OnEnter`, `OnExit` event handlers. There is also a special `FailState` that can follow any state. The first state is always `StartState` and the final states are either `EndState` or `FailState`.
 
 ## Use light state machine in your project
 
 1. Take cpp and h files from `light_state_machine` subdirectory
-2. Create your own `Context` class. See [StateMachineClient/context.h](StateMachineClient/context.h) for an example.
-3. Create your own `StateID` class enum. See [StateMachineClient/state_id.h](StateMachineClient/state_id.h) for an example.
-4. Build the state graph. For an example see [uri_parser/graph_builder.cpp](uri_parser/graph_builder.cpp). The graph is [`stlplus::digraph`](http://stlplus.sourceforge.net/stlplus3/docs/digraph.html) class.
+2. Create your own `Context` class. See [StateMachineClient/context.h](https://github.com/evpo/light-state-machine/blob/master/state_machine_client/context.h) for an example.
+3. Create your own `StateID` class enum. See [StateMachineClient/state_id.h](https://github.com/evpo/light-state-machine/blob/master/state_machine_client/state_id.h) for an example.
+4. Build the state graph. For an example see [uri_parser/graph_builder.cpp](https://github.com/evpo/light-state-machine/blob/master/uri_parser/graph_builder.cpp). The graph is [`stlplus::digraph`](http://stlplus.sourceforge.net/stlplus3/docs/digraph.html) class.
 
 ## URI parser
 
@@ -70,7 +72,7 @@ You can enable the state trace in `src/Makefile` Uncomment `# CXXFLAGS += -DTRAC
 
 BadPort state was hit because it was not clear if what was after Colon was a port or a password. This state exists to handle this scenario and move to User assuming that the bad port (non-numeric) is a password. A simmilar AtUnexpected state exists for parsing Host and hitting At.
 
-You can see the graph of states in [graph_builder.cpp](src/graph_builder.cpp). `I` is for declaring a new state node and `L` is for linking two nodes. [docs/states.jpg](docs/states.jpg) shows the complete state transition map.
+You can see the graph of states in [graph_builder.cpp](https://github.com/evpo/light-state-machine/blob/master/uri_parser/graph_builder.cpp). `I` is for declaring a new state node and `L` is for linking two nodes. [docs/states.jpg](docs/states.jpg) shows the complete state transition map.
 
 ## System requirements
 
