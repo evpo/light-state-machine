@@ -2,7 +2,6 @@
 
 #include <queue>
 #include "context.h"
-#include "functor_base.h"
 #include "state_graph.h"
 #include "utility.h"
 

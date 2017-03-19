@@ -1,18 +1,26 @@
 #pragma once
-#include "functor_base.h"
 #include "context.h"
 #include "state_id.h"
+#include <functional>
 
 namespace LightStateMachine
 {
+    void StubVoidFunction(Client::Context&);
+    bool StubBoolFunction(Client::Context&);
+
+    using VoidFunction = std::function<void(Client::Context&)>;
+    using BoolFunction = std::function<bool(Client::Context&)>;
+
     // State machine state
     // Copy semantic
     class State
     {
         public:
             State(Client::StateID id,
-                    VoidFunc &on_enter = StubVoidFunc::Instance(), VoidFunc &on_exit = StubVoidFunc::Instance(),
-                    BoolFunc &can_enter = TrueBoolFunc::Instance(), BoolFunc &can_exit = TrueBoolFunc::Instance());
+                    VoidFunction on_enter = StubVoidFunction,
+                    VoidFunction on_exit = StubVoidFunction,
+                    BoolFunction can_enter = StubBoolFunction,
+                    BoolFunction can_exit = StubBoolFunction);
             Client::StateID GetID() const;
             bool CanEnter(Client::Context &context);
             bool CanExit(Client::Context &context);
@@ -21,9 +29,9 @@ namespace LightStateMachine
 
         private:
             Client::StateID state_id_;
-            VoidFunc *on_enter_;
-            VoidFunc *on_exit_;
-            BoolFunc *can_enter_;
-            BoolFunc *can_exit_;
+            VoidFunction on_enter_;
+            VoidFunction on_exit_;
+            BoolFunction can_enter_;
+            BoolFunction can_exit_;
     };
 }

@@ -2,7 +2,7 @@
 // Handlers to various events occurring in the state machine
 //
 #pragma once
-#include "functor_base.h"
+#include "context.h"
 
 #define Context LightStateMachine::Client::Context
 namespace UriParser

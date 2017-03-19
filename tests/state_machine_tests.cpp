@@ -9,23 +9,20 @@ namespace LightStateMachine
     namespace UnitTests
     {
         class StateMachineFixture;
-        class CounterFunc : public VoidFunc
+        class CounterFunc
         {
             private:
-                bool fail_;
                 StateMachineFixture *fixture_;
             public:
-                CounterFunc();
-                void Initialize(StateMachineFixture *fixture);
-                void SetFail(bool flag);
-            protected:
-                virtual void Act(Context &) override;
+                CounterFunc(StateMachineFixture *fixture);
+                void operator()(Context &);
         };
 
         class StateMachineFixture: public ::testing::Test
         {
             public:
                 int count_;
+                bool fail_;
                 std::vector<std::string> tokens_;
             protected:
                 std::unique_ptr<StateMachine> state_machine_;
@@ -39,12 +36,15 @@ namespace LightStateMachine
                 Context context_;
 
                 StateMachineFixture()
-                    :state_machine_(nullptr),
+                    :count_(0),
+                    fail_(false),
+                    state_machine_(nullptr),
                     start_state_(StateID::Fail),
                     left_state_(StateID::Fail),
                     right_state_(StateID::Fail),
                     end_state_(StateID::End),
                     fail_state_(StateID::Fail),
+                    counter_(this),
                     context_(tokens_)
                 {
                 }
@@ -52,21 +52,21 @@ namespace LightStateMachine
                 virtual void SetUp()
                 {
                     count_ = 0;
-                    counter_.SetFail(false);
+                    fail_ = false;
+                    auto T = [](Context &){ return true; };
+                    auto F = [](Context &){ return false; };
+                    auto Stub = [](Context &) { };
+                    // start_state_ = State(StateID::Start, counter_);
                     start_state_ = State(StateID::Start, counter_);
-                    fail_state_ = State(StateID::Fail, StubVoidFunc::Instance(), StubVoidFunc::Instance(),
-                            TrueBoolFunc::Instance(), FalseBoolFunc::Instance());
+                    fail_state_ = State(StateID::Fail, Stub, Stub, T, F);
 
                     // Cannot enter
-                    left_state_ = State(StateID::Scheme, counter_, StubVoidFunc::Instance(),
-                            FalseBoolFunc::Instance());
+                    left_state_ = State(StateID::Scheme, counter_, Stub, F);
 
                     // Can enter
-                    right_state_ = State(StateID::Colon, counter_, StubVoidFunc::Instance());
+                    right_state_ = State(StateID::Colon, counter_, Stub);
 
-                    end_state_ = State(StateID::End, counter_, StubVoidFunc::Instance(),
-                            TrueBoolFunc::Instance(), FalseBoolFunc::Instance());
-                    counter_.Initialize(this);
+                    end_state_ = State(StateID::End, counter_, Stub, T, F);
 
                     auto start = graph_.insert(start_state_);
                     auto fail = graph_.insert(fail_state_);
@@ -85,24 +85,14 @@ namespace LightStateMachine
                 }
         };
 
-        CounterFunc::CounterFunc():fail_(false), fixture_(nullptr)
+        CounterFunc::CounterFunc(StateMachineFixture *fixture):fixture_(fixture)
         {
         }
 
-        void CounterFunc::SetFail(bool flag)
-        {
-            fail_ = flag;
-        }
-
-        void CounterFunc::Initialize(StateMachineFixture *fixture)
-        {
-            fixture_ = fixture;
-        }
-
-        void CounterFunc::Act(Context &context)
+        void CounterFunc::operator()(Context &context)
         {
             fixture_->count_++;
-            if(fail_)
+            if(fixture_->fail_)
                 context.SetFailed(true);
         }
 
@@ -143,7 +133,7 @@ namespace LightStateMachine
         TEST_F(StateMachineFixture, When_OnEnter_fails_Goes_to_Fail_state_and_stays_there)
         {
             // Arrange
-            counter_.SetFail(true);
+            fail_ = true;
 
             // Act
             bool result1 = state_machine_->NextState();
