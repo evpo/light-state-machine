@@ -30,19 +30,27 @@ namespace stlplus
   // iterator class
 
   template<typename K, typename T, class H, class E, typename V>
-  class hash_iterator : public safe_iterator<hash<K,T,H,E>,hash_element<K,T,H,E> >, public std::iterator<std::forward_iterator_tag, V>
+  class hash_iterator : public safe_iterator<hash<K,T,H,E>,hash_element<K,T,H,E> >
   {
   public:
     friend class hash<K,T,H,E>;
 
     // local type definitions
+
+    // iterator traits, were inherited from std::iterator but inheriting from that was deprecated in C++17
+    // the hash iterators are unidirectional, not random-access
+    typedef std::forward_iterator_tag iterator_category;
+    typedef V value_type;
+    typedef V* pointer;
+    typedef V& reference;
+    // this is not random access, so declare a void difference type, not sure this is supported by everything
+    // typedef std::ptrdiff_t difference_type;
+    typedef void difference_type;
+
     // an iterator points to a value pair whilst a const_iterator points to a const value pair
-    typedef V                                                  value_type;
     typedef hash_iterator<K,T,H,E,std::pair<const K,T> >       iterator;
     typedef hash_iterator<K,T,H,E,const std::pair<const K,T> > const_iterator;
     typedef hash_iterator<K,T,H,E,V>                           this_iterator;
-    typedef V&                                                 reference;
-    typedef V*                                                 pointer;
 
     // constructor to create a null iterator - you must assign a valid value to this iterator before using it
     // any attempt to dereference or use a null iterator is an error
@@ -60,11 +68,11 @@ namespace stlplus
     // it is only legal to increment a valid iterator
     // there's no decrement - I've only implemented this as a unidirectional iterator
     // pre-increment
-    this_iterator& operator ++ (void)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator& operator ++ (void);
     // post-increment
-    this_iterator operator ++ (int)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator operator ++ (int);
 
     // test useful for testing whether iteration has completed
     bool operator == (const this_iterator& r) const;
@@ -73,10 +81,10 @@ namespace stlplus
 
     // access the value - a const_iterator gives you a const value, an iterator a non-const value
     // it is illegal to dereference an invalid (i.e. null or end) iterator
-    reference operator*(void) const
-      throw(null_dereference,end_dereference);
-    pointer operator->(void) const
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    reference operator*(void) const;
+    // exceptions: null_dereference,end_dereference
+    pointer operator->(void) const;
 
   private:
     friend class hash_element<K,T,H,E>;
@@ -166,14 +174,26 @@ namespace stlplus
     // find a key and return an iterator to it
     // The iterator is like a pointer to a pair<const K,T>
     // end() is returned if the find fails
+    // Note that ALL hash functions that use iterators are **NOT** thread safe!!!
+    // This is due to the usage of a reference counted master iterator.
     const_iterator find(const K& key) const;
     iterator find(const K& key);
 
     // returns the data corresponding to the key
     // const version is used for const hashes and cannot change the hash, so failure causes an exception
     // non-const version is for non-const hashes and is like map - it creates a new key/data pair if find fails
-    const T& operator[] (const K& key) const throw(std::out_of_range);
+    // exceptions: std::out_of_range
+    const T& operator[] (const K& key) const ;
     T& operator[] (const K& key);
+
+    // synonym for const version of operator[]
+    // avoids problem where overloading of operator[] means non-const version can be called, causing a write operation
+    // exceptions: std::out_of_range
+    const T& at(const K& key) const ;
+
+    // as above, but accesses a pointer to the value
+    // returns a null pointer if not found, eliminating an exception handler
+    const T* at_pointer(const K& key) const;
 
     // iterators allow the hash table to be traversed
     // iterators remain valid unless an item is removed or unless a rehash happens

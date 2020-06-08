@@ -32,7 +32,6 @@
 
 #ifdef MSWINDOWS
 #include <windows.h>
-#include <dos.h>
 #include <direct.h>
 #include <fcntl.h>
 #include <io.h>
@@ -363,8 +362,8 @@ namespace stlplus
       set_drive("");
       // first remove leading elements that are identical to the corresponding element in root
       unsigned i = 0;
-      while(subpath_size() > 0 && 
-            i < absolute_root.subpath_size() && 
+      while(subpath_size() > 0 &&
+            i < absolute_root.subpath_size() &&
             path_compare(subpath_element(0), absolute_root.subpath_element(i)))
       {
         subpath_erase(0);
@@ -406,6 +405,53 @@ namespace stlplus
   }
 
 ////////////////////////////////////////////////////////////////////////////////
+// functions for multibyte support required on Windows
+#ifdef MSWINDOWS
+  void Multi2Wide(const std::string &multi, std::wstring &wide)
+  {
+    wide.clear();
+    int len = MultiByteToWideChar(CP_UTF8, 0, multi.c_str(), -1,
+        NULL, 0);
+    if(!len)
+      return;
+    wide.resize(len - 1, 0);
+    MultiByteToWideChar(CP_UTF8, 0, multi.data(), multi.size(),
+        &wide[0], wide.size());
+  }
+
+  void Wide2Multi(const std::wstring &wide, std::string &multi)
+  {
+    multi.clear();
+    if(wide.empty())
+      return;
+    int len = WideCharToMultiByte(CP_UTF8, 0, &wide[0], static_cast<int>(wide.size()),
+        NULL, 0, NULL, NULL);
+    multi.resize(len - 1, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wide[0], static_cast<int>(wide.size()),
+        &multi[0], len, NULL, NULL);
+  }
+
+  std::string ExpandVariablesWin(const std::string &path)
+  {
+    std::wstring wide;
+    Multi2Wide(path, wide);
+    std::wstring buffer;
+    buffer.resize(MAX_PATH);
+    DWORD size = ExpandEnvironmentStringsW(wide.c_str(), &buffer[0], buffer.size());
+    while(size == buffer.size())
+    {
+      buffer.resize(buffer.size() * 2);
+      size = ExpandEnvironmentStringsW(wide.c_str(), &buffer[0], buffer.size());
+    }
+    buffer.resize(size);
+    wide = buffer;
+    std::string multi;
+    Wide2Multi(wide, multi);
+    return multi;
+  }
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
 // classifying functions
 
 // Under both Windows and Unix, the stat function is used for classification
@@ -421,12 +467,12 @@ namespace stlplus
 //   S_IFCHR 	0020000	character device
 //   S_IFIFO 	0010000	FIFO
 // There are also some Posix-standard macros:
-//   S_ISREG(m)        is it a regular file? 
-//   S_ISDIR(m)        directory? 
-//   S_ISCHR(m)        character device? 
-//   S_ISBLK(m)        block device? 
-//   S_ISFIFO(m)       FIFO (named pipe)? 
-//   S_ISLNK(m)        symbolic link? (Not in POSIX.1-1996.) 
+//   S_ISREG(m)        is it a regular file?
+//   S_ISDIR(m)        directory?
+//   S_ISCHR(m)        character device?
+//   S_ISBLK(m)        block device?
+//   S_ISFIFO(m)       FIFO (named pipe)?
+//   S_ISLNK(m)        symbolic link? (Not in POSIX.1-1996.)
 //   S_ISSOCK(m)       socket? (Not in POSIX.1-1996.)
 // Under Windows, the following are defined:
 // source: Header file sys/stat.h distributed with Visual Studio 10
@@ -481,6 +527,15 @@ namespace stlplus
     std::string path = thing;
     if (!path.empty() && is_separator(path[path.size()-1]))
       path.erase(path.size()-1,1);
+#ifdef MSWINDOWS
+    std::wstring buffer;
+    Multi2Wide(path, buffer);
+    buffer = std::wstring(L"\\\\?\\") + buffer;
+    DWORD attributes = GetFileAttributesW(buffer.c_str());
+    if(INVALID_FILE_ATTRIBUTES == attributes)
+      return false;
+    return (FILE_ATTRIBUTE_DIRECTORY & attributes) != 0;
+#else
     // now test if this thing exists using the built-in stat function and if so, is it a folder
     struct stat buf;
     if (!(stat(path.c_str(), &buf) == 0))
@@ -488,6 +543,7 @@ namespace stlplus
     // If the object is present, see if it is a directory
     // this is the Posix-approved way of testing
     return S_ISDIR(buf.st_mode);
+#endif
   }
 
   bool is_file (const std::string& thing)
@@ -646,7 +702,9 @@ namespace stlplus
   bool folder_create (const std::string& directory)
   {
 #ifdef MSWINDOWS
-    return mkdir(directory.c_str()) == 0;
+    std::wstring buffer;
+    Multi2Wide(directory, buffer);
+    return CreateDirectoryW(buffer.c_str(),NULL) != 0;
 #else
     return mkdir(directory.c_str(), 0777) == 0;
 #endif
@@ -686,11 +744,11 @@ namespace stlplus
     {
       std::vector<std::string> subdirectories = folder_subdirectories(dir);
       for (std::vector<std::string>::size_type d = 0; d < subdirectories.size(); ++d)
-        if (!folder_delete(folder_down(dir,subdirectories[d]),true)) 
+        if (!folder_delete(folder_down(dir,subdirectories[d]),true))
           result = false;
       std::vector<std::string> files = folder_files(dir);
       for (std::vector<std::string>::size_type f = 0; f < files.size(); ++f)
-        if (!file_delete(create_filespec(dir, files[f]))) 
+        if (!file_delete(create_filespec(dir, files[f])))
           result = false;
     }
     if (rmdir(dir.c_str())!=0) result = false;
@@ -848,15 +906,26 @@ namespace stlplus
     return results;
   }
 
+  std::string folder_user_profile (void)
+  {
+#ifdef MSWINDOWS
+    if(getenv("USERPROFILE"))
+      return ExpandVariablesWin("%USERPROFILE%");
+#endif
+    return folder_home();
+  }
+
   std::string folder_home (void)
   {
-    if (getenv("HOME"))
-      return std::string(getenv("HOME"));
 #ifdef MSWINDOWS
+    if(getenv("HOME"))
+      return ExpandVariablesWin("%HOME%");
     if (getenv("HOMEDRIVE") || getenv("HOMEPATH"))
-      return std::string(getenv("HOMEDRIVE")) + std::string(getenv("HOMEPATH"));
+      return ExpandVariablesWin("%HOMEDRIVE%%HOMEPATH%");
     return "C:\\";
 #else
+    if (getenv("HOME"))
+      return std::string(getenv("HOME"));
     if (getenv("USER"))
       return folder_down("/home", std::string(getenv("USER")));
     if (getenv("USERNAME"))
@@ -1132,6 +1201,22 @@ namespace stlplus
 
   std::string install_path(const std::string& argv0)
   {
+#ifdef MSWINDOWS
+    (void)argv0;
+    std::wstring buffer;
+    buffer.resize(MAX_PATH);
+    DWORD size = GetModuleFileNameW(NULL, &buffer[0], buffer.size());
+    while(size == buffer.size())
+    {
+      // ERROR_INSUFFICENT_BUFFER
+      buffer.resize(buffer.size() * 2);
+      size = GetModuleFileNameW(NULL, &buffer[0], buffer.size());
+    }
+    buffer.resize(size);
+    std::string binary;
+    Wide2Multi(buffer, binary);
+    return folder_part(binary);
+#else
     std::string bin_directory = folder_part(argv0);
     if (bin_directory.empty())
     {
@@ -1139,6 +1224,7 @@ namespace stlplus
       bin_directory = folder_part(path_lookup(argv0));
     }
     return bin_directory;
+#endif
   }
 
 ////////////////////////////////////////////////////////////////////////////////

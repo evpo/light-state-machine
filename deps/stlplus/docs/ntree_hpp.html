@@ -48,23 +48,31 @@ namespace stlplus
   ////////////////////////////////////////////////////////////////////////////////
   // Iterators
 
-  // Simple iterators which are just used as pointers to tree nodes. These have
-  // no increment or decrement operations defined. An uninitialised iterator is
-  // null - similarly, if you ask for the root of an empty tree or the parent of
+  // Simple iterators which are just used as pointers to tree nodes.
+  // this is not really an iterator - it is a reference, i.e. an iterator with no increment
+  // unfortunately the STL does not provide for this rather useful concept
+  // I have called it an iterator for consistency, but it is really an element reference
+  // An uninitialised iterator is null - similarly, if you ask for the root of an empty tree or the parent of
   // the root node then you get a null iterator.
 
   template&lt;typename T, typename TRef, typename TPtr&gt;
-  class ntree_iterator :
-    public safe_iterator&lt;ntree&lt;T&gt;,ntree_node&lt;T&gt; &gt;
+  class ntree_iterator : public safe_iterator&lt;ntree&lt;T&gt;,ntree_node&lt;T&gt; &gt;
   {
   public:
     // local type definitions
+
+    // iterator traits, were inherited from std::iterator but inheriting from that was deprecated in C++17
+    // there is no relevant iterator category since this is not incremenable
+    typedef void iterator_category;
+    typedef T value_type;
+    typedef TPtr pointer;
+    typedef TRef reference;
+    typedef void difference_type;
+
     // an iterator points to an object whilst a const_iterator points to a const object
     typedef ntree_iterator&lt;T,T&amp;,T*&gt; iterator;
     typedef ntree_iterator&lt;T,const T&amp;,const T*&gt; const_iterator;
     typedef ntree_iterator&lt;T,TRef,TPtr&gt; this_iterator;
-    typedef TRef reference;
-    typedef TPtr pointer;
 
     // constructor to create a null iterator - you must assign a valid value to this iterator before using it
     ntree_iterator(void);
@@ -81,10 +89,10 @@ namespace stlplus
 
     // access the node data - a const_iterator gives you a const element, an iterator a non-const element
     // it is illegal to dereference an invalid (i.e. null or end) iterator
-    reference operator*(void) const
-      throw(null_dereference,end_dereference);
-    pointer operator-&gt;(void) const
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    reference operator*(void) const;
+    // exceptions: null_dereference,end_dereference
+    pointer operator-&gt;(void) const;
 
     friend class ntree&lt;T&gt;;
     friend class ntree_prefix_iterator&lt;T,TRef,TPtr&gt;;
@@ -112,16 +120,25 @@ namespace stlplus
   // require a simple iterator.
 
   template&lt;typename T, typename TRef, typename TPtr&gt;
-  class ntree_prefix_iterator : 
-    public std::iterator&lt;std::forward_iterator_tag, T, std::ptrdiff_t, TPtr, TRef&gt;
+  class ntree_prefix_iterator
   {
   public:
+
+    // iterator traits, were inherited from std::iterator but inheriting from that was deprecated in C++17
+    // the ntree iterators are unidirectional
+    typedef std::forward_iterator_tag iterator_category;
+    typedef T value_type;
+    typedef TPtr pointer;
+    typedef TRef reference;
+    // this is not random access, so declare a void difference type, not sure this is supported by everything
+    // typedef std::ptrdiff_t  difference_type;
+    typedef void difference_type;
+
+    // an iterator points to an object whilst a const_iterator points to a const object
     typedef ntree_prefix_iterator&lt;T,T&amp;,T*&gt;             iterator;
     typedef ntree_prefix_iterator&lt;T,const T&amp;,const T*&gt; const_iterator;
     typedef ntree_prefix_iterator&lt;T,TRef,TPtr&gt;         this_iterator;
     typedef ntree_iterator&lt;T,TRef,TPtr&gt;                simple_iterator;
-    typedef TRef                                       reference;
-    typedef TPtr                                       pointer;
 
     // constructor to create a null iterator - you must assign a valid value to this iterator before using it
     ntree_prefix_iterator(void);
@@ -154,18 +171,18 @@ namespace stlplus
     // increment/decrement operators used to step through the set of all nodes in a graph
     // it is only legal to increment a valid iterator
     // pre-increment
-    this_iterator&amp; operator ++ (void)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator&amp; operator ++ (void);
     // post-increment
-    this_iterator operator ++ (int)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator operator ++ (int);
 
     // access the node data - a const_iterator gives you a const element, an iterator a non-const element
     // it is illegal to dereference an invalid (i.e. null or end) iterator
-    reference operator*(void) const
-      throw(null_dereference,end_dereference);
-    pointer operator-&gt;(void) const
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    reference operator*(void) const;
+    // exceptions: null_dereference,end_dereference
+    pointer operator-&gt;(void) const;
 
     friend class ntree&lt;T&gt;;
     friend class ntree_iterator&lt;T,TRef,TPtr&gt;;
@@ -181,16 +198,24 @@ namespace stlplus
   ////////////////////////////////////////////////////////////////////////////////
 
   template&lt;typename T, typename TRef, typename TPtr&gt;
-  class ntree_postfix_iterator :
-    public std::iterator&lt;std::forward_iterator_tag, T, std::ptrdiff_t, TPtr, TRef&gt;
+  class ntree_postfix_iterator
   {
   public:
+
+    // iterator traits, were inherited from std::iterator but inheriting from that was deprecated in C++17
+    // the ntree iterators are unidirectional
+    typedef std::forward_iterator_tag iterator_category;
+    typedef T value_type;
+    typedef TPtr pointer;
+    typedef TRef reference;
+    // this is not random access, so declare a void difference type, not sure this is supported by everything
+    // typedef std::ptrdiff_t  difference_type;
+    typedef void difference_type;
+
     typedef ntree_postfix_iterator&lt;T,T&amp;,T*&gt;             iterator;
     typedef ntree_postfix_iterator&lt;T,const T&amp;,const T*&gt; const_iterator;
     typedef ntree_postfix_iterator&lt;T,TRef,TPtr&gt;         this_iterator;
     typedef ntree_iterator&lt;T,TRef,TPtr&gt;                 simple_iterator;
-    typedef TRef                                        reference;
-    typedef TPtr                                        pointer;
 
     // constructor to create a null iterator - you must assign a valid value to this iterator before using it
     ntree_postfix_iterator(void);
@@ -223,18 +248,18 @@ namespace stlplus
     // increment/decrement operators used to step through the set of all nodes in a graph
     // it is only legal to increment a valid iterator
     // pre-increment
-    this_iterator&amp; operator ++ (void)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator&amp; operator ++ (void);
     // post-increment
-    this_iterator operator ++ (int)
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    this_iterator operator ++ (int);
 
     // access the node data - a const_iterator gives you a const element, an iterator a non-const element
     // it is illegal to dereference an invalid (i.e. null or end) iterator
-    reference operator*(void) const
-      throw(null_dereference,end_dereference);
-    pointer operator-&gt;(void) const
-      throw(null_dereference,end_dereference);
+    // exceptions: null_dereference,end_dereference
+    reference operator*(void) const;
+    // exceptions: null_dereference,end_dereference
+    pointer operator-&gt;(void) const;
 
     friend class ntree&lt;T&gt;;
     friend class ntree_iterator&lt;T,TRef,TPtr&gt;;
@@ -288,16 +313,16 @@ namespace stlplus
     unsigned size(void) const;
 
     // tests for number of nodes in subtree starting at node
-    unsigned size(const const_iterator&amp; node) const
-      throw(wrong_object,null_dereference,end_dereference);
-    unsigned size(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned size(const const_iterator&amp; node) const;
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned size(const iterator&amp; node);
 
     // test for depth of tree from root to node
-    unsigned depth(const const_iterator&amp; node) const
-      throw(wrong_object,null_dereference,end_dereference);
-    unsigned depth(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned depth(const const_iterator&amp; node) const;
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned depth(const iterator&amp; node);
 
     //////////////////////////////////////////////////////////////////////////////
     // direct traversal
@@ -307,28 +332,28 @@ namespace stlplus
     iterator root(void);
 
     // get the number of children of this node, so they can be accessed 0..n-1
-    unsigned children(const const_iterator&amp; node) const
-      throw(wrong_object,null_dereference,end_dereference);
-    unsigned children(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned children(const const_iterator&amp; node) const;
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned children(const iterator&amp; node);
 
     // get the iterator for a child given it's offset into the children array
-    const_iterator child(const const_iterator&amp; node, unsigned child) const
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
-    iterator child(const iterator&amp; node, unsigned child)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    const_iterator child(const const_iterator&amp; node, unsigned child) const;
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    iterator child(const iterator&amp; node, unsigned child);
 
     // search a node's children array to find a child given its iterator
-    unsigned child_offset(const const_iterator&amp; node, const const_iterator&amp; child) const
-      throw(wrong_object,null_dereference,end_dereference);
-    unsigned child_offset(const iterator&amp; node, const iterator&amp; child)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned child_offset(const const_iterator&amp; node, const const_iterator&amp; child) const;
+    // exceptions: wrong_object,null_dereference,end_dereference
+    unsigned child_offset(const iterator&amp; node, const iterator&amp; child);
 
     // go back up the tree by getting the iterator to a node's parent - the parent of root is null
-    const_iterator parent(const const_iterator&amp; node) const
-      throw(wrong_object,null_dereference,end_dereference);
-    iterator parent(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    const_iterator parent(const const_iterator&amp; node) const;
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator parent(const iterator&amp; node);
 
     //////////////////////////////////////////////////////////////////////////////
     // iterator traversal
@@ -357,28 +382,28 @@ namespace stlplus
     // discard previous contents and create a new root node
     iterator insert(const T&amp;);
     // add a new child inserted into the node's children at the specified place
-    iterator insert(const iterator&amp; node, unsigned child, const T&amp;)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    iterator insert(const iterator&amp; node, unsigned child, const T&amp;);
     // shortcut for insert at the end i.e. tree.insert(node, node.children(), value)
-    iterator insert(const iterator&amp; node, const T&amp;) 
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator insert(const iterator&amp; node, const T&amp;);
     // old name for the above
-    iterator append(const iterator&amp; node, const T&amp;) 
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator append(const iterator&amp; node, const T&amp;);
 
     // insert a copy of a subtree
 
     // discard previous contents and copy the tree
     iterator insert(const ntree&lt;T&gt;&amp;);
     // add a copy of the tree as a new child inserted into the node's children at the specified place
-    iterator insert(const iterator&amp; node, unsigned child, const ntree&lt;T&gt;&amp;)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    iterator insert(const iterator&amp; node, unsigned child, const ntree&lt;T&gt;&amp;);
     // shortcut for insert at the end i.e. tree.insert(node, node.children(), value)
-    iterator insert(const iterator&amp; node, const ntree&lt;T&gt;&amp;)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator insert(const iterator&amp; node, const ntree&lt;T&gt;&amp;);
     // old name for the above
-    iterator append(const iterator&amp; node, const ntree&lt;T&gt;&amp;)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator append(const iterator&amp; node, const ntree&lt;T&gt;&amp;);
 
     // insert the subtree without copying
 
@@ -387,74 +412,74 @@ namespace stlplus
     iterator move(ntree&lt;T&gt;&amp;);
     // move the tree to become the designated child
     // invalidates all iterators to the old tree
-    iterator move(const iterator&amp; node, unsigned child, ntree&lt;T&gt;&amp;)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    iterator move(const iterator&amp; node, unsigned child, ntree&lt;T&gt;&amp;);
     // shortcut for move to the last child i.e. node.move(node, node.children(), value)
-    iterator move(const iterator&amp; node, ntree&lt;T&gt;&amp;)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator move(const iterator&amp; node, ntree&lt;T&gt;&amp;);
 
     // insert/erase in the middle of a tree
 
     // replace the node with the new value, pushing the old node down to make it the child
     // returns the iterator to the new, pushed node
-    iterator push(const iterator&amp; node, const T&amp;) 
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    iterator push(const iterator&amp; node, const T&amp;);
     // erases the specified child, moving its children up to become the node's children
-    void pop(const iterator&amp; node, unsigned child) 
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    void pop(const iterator&amp; node, unsigned child);
 
     // erase nodes and subtrees
 
     // erase the whole tree
     void erase(void);
     // erase the node and all its children
-    void erase(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    void erase(const iterator&amp; node);
     // erase the specified child
-    void erase_child(const iterator&amp; node, unsigned child)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    void erase_child(const iterator&amp; node, unsigned child);
     // synonym for above
-    void erase(const iterator&amp; node, unsigned child)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    void erase(const iterator&amp; node, unsigned child);
     // erase all children of the node, but leave the node
-    void erase_children(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    void erase_children(const iterator&amp; node);
 
     // extract a subtree as a copy leaving the original tree unchanged
 
     // get a copy of the tree as a tree
     ntree&lt;T&gt; subtree(void);
     // get a copy of the subtree as a tree with the specified node as root
-    ntree&lt;T&gt; subtree(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    ntree&lt;T&gt; subtree(const iterator&amp; node);
     // get a copy of the subtree as a tree with the specified child as root
-    ntree&lt;T&gt; subtree(const iterator&amp; node, unsigned child)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    ntree&lt;T&gt; subtree(const iterator&amp; node, unsigned child);
 
     // extract a subtree by moving the contents
 
     // move the whole tree to make a new tree
     ntree&lt;T&gt; cut(void);
     // move the subtree to make a new tree with the specified node as root
-    ntree&lt;T&gt; cut(const iterator&amp; node)
-      throw(wrong_object,null_dereference,end_dereference);
+    // exceptions: wrong_object,null_dereference,end_dereference
+    ntree&lt;T&gt; cut(const iterator&amp; node);
     // move the subtree to make a new tree with the specified child as root
-    ntree&lt;T&gt; cut(const iterator&amp; node, unsigned child)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    ntree&lt;T&gt; cut(const iterator&amp; node, unsigned child);
 
     // re-ordering of child nodes
 
     // reorder the children of a node
     // moves the child at the given offset to the new offset, reordering its siblings to make room
     // this preserves the order of the remaining siblings but not their positions e.g. reorder([a,b,c,d],0,3) = [b,c,d,a]
-    void reorder(const iterator&amp; node, unsigned child_offset, unsigned new_offset)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    void reorder(const iterator&amp; node, unsigned child_offset, unsigned new_offset);
 
     // swap two children of a node
     // swaps the child at the given offset with the new offset
     // this preserves the position of the remaining siblings e.g. swap([a,b,c,d],0,3) = [d,b,c,a]
-    void swap(const iterator&amp; node, unsigned child1, unsigned child2)
-      throw(wrong_object,null_dereference,end_dereference,std::out_of_range);
+    // exceptions: wrong_object,null_dereference,end_dereference,std::out_of_range
+    void swap(const iterator&amp; node, unsigned child1, unsigned child2);
 
     //////////////////////////////////////////////////////////////////////////////
 

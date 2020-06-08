@@ -107,6 +107,8 @@ namespace stlplus
   std::string folder_current_full(void);
   // get the home folder - $HOME or %HOMEDRIVE%%HOMEPATH%
   std::string folder_home(void);
+  // get the user profile folder -  $HOME or %USERPROFILE%
+  std::string folder_user_profile(void);
   // go down a level in the folder hierarchy
   std::string folder_down(const std::string& folder, const std::string& subfolder);
   // go up a level in the folder hierarchy
@@ -156,7 +158,7 @@ namespace stlplus
   std::string folder_append_separator(const std::string& folder);
   // undo the above to give a simplified folder with no trailing separator
   std::string folder_remove_end_separator(const std::string& folder);
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // access functions split a filespec into its elements
 
