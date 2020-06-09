@@ -5,6 +5,8 @@
 #include "state_machine.h"
 #include "tokenizer.h"
 #include "graph_builder.h"
+#include "context.h"
+#include "assert.h"
 
 using namespace std;
 using namespace LightStateMachine;
@@ -19,19 +21,20 @@ namespace UriParser
             ResultID::InvalidUri,
             Uri()
         };
-        auto graph_info = BuildStateGraph();
+        auto &state_graph = BuildStateGraph();
         std::vector<string> tokens = Tokenize(str);
         Client::Context context(tokens);
+        StateMachineContext sm_context(&context);
         if(context.IsEmpty())
             return invalid_result;
-        assert(graph_info.state_graph->size() > 0);
-        StateMachine state_machine(*graph_info.state_graph, graph_info.start_node, graph_info.fail_node, context);
+        StateMachine state_machine(state_graph, sm_context);
         while(state_machine.NextState())
         {
         }
 
-        assert(state_machine.CurrentState() == StateID::End || state_machine.CurrentState() == StateID::Fail);
-        ResultID result_id = state_machine.CurrentState() == StateID::End ? ResultID::OK : ResultID::InvalidUri;
+        // assert(state_machine.CurrentState() == StateID::End || state_machine.CurrentState() == StateID::Fail);
+
+        ResultID result_id = sm_context.GetFailed() ? ResultID::InvalidUri : ResultID::OK;
 
         Result result =
         {

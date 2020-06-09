@@ -1,165 +1,137 @@
 #include "graph_builder.h"
 #include <memory>
 #include "state_handlers.h"
+#include "state_id.h"
 
 using namespace LightStateMachine;
 using namespace LightStateMachine::Client;
 
 namespace UriParser
 {
-    StateGraphInfo BuildStateGraph()
+    StateGraph &BuildStateGraph()
     {
+        static bool is_populated = false;
         static StateGraph state_graph;
-        static StateGraph::iterator start_node;
-        static StateGraph::iterator fail_node;
-        if(!state_graph.empty())
-        {
-            return {
-                &state_graph,
-                start_node,
-                fail_node
-            };
-        }
+        if(is_populated)
+            return state_graph;
 
-        // Insert new state
-        auto I = [&](State s)->StateGraph::iterator
-        {
-            return state_graph.insert(s);
-        };
-
-        // Link states
-        auto L = [&](StateGraph::iterator l, StateGraph::iterator r)
-        {
-            state_graph.arc_insert(l, r);
-        };
+        is_populated = true;
 
         // Stub functions
-        auto T = [](Context &){ return true; };
-        auto F = [](Context &){ return false; };
-        auto Stub = [](Context &){};
-
-        // Reusable states
-        State colon_state(StateID::Colon, NextToken, Stub, ColonCanEnter, T);
-
-        State slash_state(StateID::Slash, NextToken, Stub, SlashCanEnter, T);
-
+        auto T = [](StateMachineContext &){ return true; };
+        auto F = [](StateMachineContext &){ return false; };
+        auto Stub = [](StateMachineContext &){};
         // Start state
-        start_node = I(State(StateID::Start));
-
+        state_graph.Create(StateID::Start);
         // Fail state
-        fail_node = I(State(StateID::Fail, Stub, Stub, T, F));
+        state_graph.Create(StateID::Fail, Stub, Stub, T, F);
 
         // End state
-        auto end_node = I(State(StateID::End, Stub, Stub, EndOnEnter, F));
+        state_graph.Create(StateID::End, Stub, Stub, EndOnEnter, F);
 
         // Scheme
-        auto scheme_node = I(State(StateID::Scheme, SchemeOnEnter, Stub, SchemeCanEnter, T));
+        state_graph.Create(StateID::Scheme, SchemeOnEnter, Stub, SchemeCanEnter, T);
 
-        L(start_node, scheme_node);
+        state_graph.Link(StateID::Start, StateID::Scheme);
 
-        // Colon
-        auto colon_node = I(colon_state);
-        L(scheme_node, colon_node);
+        // Colon 1
+        state_graph.Create(StateID::Colon1, NextToken, Stub, ColonCanEnter, T);
+        state_graph.Link(StateID::Scheme, StateID::Colon1);
 
         // Slash 1
-        auto slash_node = I(slash_state);
-        L(colon_node, slash_node);
+        state_graph.Create(StateID::Slash1, NextToken, Stub, SlashCanEnter, T);
+        state_graph.Link(StateID::Colon1, StateID::Slash1);
 
         // Slash 2
-        auto prev = slash_node;
-        slash_node = I(slash_state);
-        L(prev, slash_node);
+        state_graph.Create(StateID::Slash2, NextToken, Stub, SlashCanEnter, T);
+        state_graph.Link(StateID::Slash1, StateID::Slash2);
 
         // Authority
-        auto authority_node = I(State(StateID::Authority, AuthorityOnEnter, Stub, NotEOS, T));
-        L(slash_node, authority_node);
+        state_graph.Create(StateID::Authority, AuthorityOnEnter, Stub, NotEOS, T);
+        state_graph.Link(StateID::Slash2, StateID::Authority);
 
         // Host
-        auto host_node = I(State(StateID::Host, HostOnEnter, Stub, NotEOS, T));
-        L(authority_node, host_node);
-        L(host_node, end_node);
+        state_graph.Create(StateID::Host, HostOnEnter, Stub, NotEOS, T);
+        state_graph.Link(StateID::Authority, StateID::Host);
+        state_graph.Link(StateID::Host, StateID::End);
 
         // We turned right
-        // Colon
-        colon_node = I(colon_state);
-        L(host_node, colon_node);
+        // Colon 2
+        state_graph.Create(StateID::Colon2, NextToken, Stub, ColonCanEnter, T);
+        state_graph.Link(StateID::Host, StateID::Colon2);
 
         // Port
-        auto port_node = I(State(StateID::Port, PortOnEnter, Stub, PortCanEnter, T));
-        L(colon_node, port_node);
-        L(port_node, end_node);
-
+        state_graph.Create(StateID::Port, PortOnEnter, Stub, PortCanEnter, T);
+        state_graph.Link(StateID::Colon2, StateID::Port);
+        state_graph.Link(StateID::Port, StateID::End);
 
         // Bad port
-        auto bad_port_node = I(State(StateID::BadPort, BadPortOnEnter, Stub, BadPortCanEnter, T));
-        L(colon_node, bad_port_node);
+        state_graph.Create(StateID::BadPort, BadPortOnEnter, Stub, BadPortCanEnter, T);
+        state_graph.Link(StateID::Colon2, StateID::BadPort);
 
         // At unexpected
-        auto at_unexpected_node = I(State(StateID::AtUnexpected, AtUnexpectedOnEnter, Stub, AtCanEnter, T));
-        L(port_node, at_unexpected_node);
-        L(host_node, at_unexpected_node);
+        state_graph.Create(StateID::AtUnexpected, AtUnexpectedOnEnter, Stub, AtCanEnter, T);
+        state_graph.Link(StateID::Port, StateID::AtUnexpected);
+        state_graph.Link(StateID::Host, StateID::AtUnexpected);
 
         // User
-        auto user_node = I(State(StateID::User, UserOnEnter, Stub, NotEOS, T));
-        L(at_unexpected_node, user_node);
-        L(bad_port_node, user_node);
+        state_graph.Create(StateID::User, UserOnEnter, Stub, NotEOS, T);
+        state_graph.Link(StateID::AtUnexpected, StateID::User);
+        state_graph.Link(StateID::BadPort, StateID::User);
 
         // Colon
-        colon_node = I(colon_state);
-        L(user_node, colon_node);
+        state_graph.Create(StateID::Colon3, NextToken, Stub, ColonCanEnter, T);
+        state_graph.Link(StateID::User, StateID::Colon3);
 
         // Password
-        auto password_node = I(State(StateID::Password, PasswordOnEnter, Stub, NotEOS, T));
-        L(colon_node, password_node);
+        state_graph.Create(StateID::Password, PasswordOnEnter, Stub, NotEOS, T);
+        state_graph.Link(StateID::Colon3, StateID::Password);
 
         // At expected
-        auto at_expected_node = I(State(StateID::AtExpected, NextToken, Stub, AtCanEnter, T));
-        L(password_node, at_expected_node);
-        L(at_expected_node, host_node);
-        L(user_node, at_expected_node);
+        state_graph.Create(StateID::AtExpected, NextToken, Stub, AtCanEnter, T);
+        state_graph.Link(StateID::Password, StateID::AtExpected);
+        state_graph.Link(StateID::AtExpected, StateID::Host);
+        state_graph.Link(StateID::User, StateID::AtExpected);
 
         // Slash before path
-        slash_node = I(slash_state);
-        L(port_node, slash_node);
-        L(host_node, slash_node);
-        L(slash_node, end_node);
+        state_graph.Create(StateID::Slash3, NextToken, Stub, SlashCanEnter, T);
+        state_graph.Link(StateID::Port, StateID::Slash3);
+        state_graph.Link(StateID::Host, StateID::Slash3);
+        state_graph.Link(StateID::Slash3, StateID::End);
+
 
         // Path
-        auto path_node = I(State(StateID::Path, PathOnEnter, Stub, PathCanEnter, T));
-        L(slash_node, path_node);
-        L(path_node, end_node);
-        L(path_node, slash_node);
+        state_graph.Create(StateID::Path, PathOnEnter, Stub, PathCanEnter, T);
+        state_graph.Link(StateID::Slash3, StateID::Path);
+        state_graph.Link(StateID::Path, StateID::End);
+        state_graph.Link(StateID::Path, StateID::Slash3);
 
         // Question
-        auto question_node = I(State(StateID::Question, NextToken, Stub, QuestionCanEnter, T));
-        L(host_node, question_node);
-        L(port_node, question_node);
-        L(slash_node, question_node);
-        L(path_node, question_node);
+        state_graph.Create(StateID::Question, NextToken, Stub, QuestionCanEnter, T);
+        state_graph.Link(StateID::Host, StateID::Question);
+        state_graph.Link(StateID::Port, StateID::Question);
+        state_graph.Link(StateID::Slash3, StateID::Question);
+        state_graph.Link(StateID::Path, StateID::Question);
 
         // Query
-        auto query_node = I(State(StateID::Query, QueryOnEnter, Stub, QueryCanEnter, T));
-        L(question_node, query_node);
-        L(query_node, end_node);
+        state_graph.Create(StateID::Query, QueryOnEnter, Stub, QueryCanEnter, T);
+        state_graph.Link(StateID::Question, StateID::Query);
+        state_graph.Link(StateID::Query, StateID::End);
 
         // Sharp
-        auto sharp_node = I(State(StateID::Sharp, NextToken, Stub, SharpCanEnter, T));
-        L(query_node, sharp_node);
-        L(port_node, sharp_node);
-        L(host_node, sharp_node);
-        L(path_node, sharp_node);
-        L(slash_node, sharp_node);
+        state_graph.Create(StateID::Sharp, NextToken, Stub, SharpCanEnter, T);
+        state_graph.Link(StateID::Query, StateID::Sharp);
+        state_graph.Link(StateID::Port, StateID::Sharp);
+        state_graph.Link(StateID::Host, StateID::Sharp);
+        state_graph.Link(StateID::Path, StateID::Sharp);
+        state_graph.Link(StateID::Slash3, StateID::Sharp);
 
         // Fragment
-        auto fragment_node = I(State(StateID::Fragment, FragmentOnEnter, Stub, NotEOS, T));
-        L(sharp_node, fragment_node);
-        L(fragment_node, end_node);
+        state_graph.Create(StateID::Fragment, FragmentOnEnter, Stub, NotEOS, T);
+        state_graph.Link(StateID::Sharp, StateID::Fragment);
+        state_graph.Link(StateID::Fragment, StateID::End);
 
-        return {
-            &state_graph,
-            start_node,
-            fail_node
-        };
+        return state_graph;
     }
 }
 

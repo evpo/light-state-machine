@@ -1,52 +1,70 @@
+//**********************************************************************************
+//EncryptPad Copyright 2018 Evgeny Pokhilko 
+//<http://www.evpo.net/encryptpad>
+//
+//LightStateMachine is released under the Simplified BSD License (see license.txt)
+//**********************************************************************************
 #include "state.h"
-
-using namespace LightStateMachine::Client;
 
 namespace LightStateMachine
 {
 
-    State::State(StateID id, VoidFunction on_enter, VoidFunction on_exit,
-            BoolFunction can_enter, BoolFunction can_exit)
-        :
-        state_id_(id),
-        on_enter_(on_enter),
-        on_exit_(on_exit),
-        can_enter_(can_enter),
-        can_exit_(can_exit)
-    {
-    }
-
-    StateID State::GetID() const
+    StateMachineStateID State::GetID() const
     {
         return state_id_;
     }
 
-    bool State::CanEnter(Context &context)
+    bool State::CanEnter(StateMachineContext &context)
     {
         return can_enter_(context);
     }
 
-    bool State::CanExit(Context &context)
+    bool State::CanExit(StateMachineContext &context)
     {
         return can_exit_(context);
     }
 
-    void State::OnEnter(Context &context)
+    void State::OnEnter(StateMachineContext &context)
     {
         on_enter_(context);
     }
 
-    void State::OnExit(Context &context)
+    void State::OnExit(StateMachineContext &context)
     {
         on_exit_(context);
     }
 
-    void StubVoidFunction(Client::Context&)
+    void State::SetCanEnter(BoolFunction can_enter)
+    {
+        can_enter_ = can_enter;
+    }
+
+    void State::SetCanExit(BoolFunction can_exit)
+    {
+        can_exit_ = can_exit;
+    }
+
+    void State::SetOnEnter(VoidFunction on_enter)
+    {
+        on_enter_ = on_enter;
+    }
+
+    void State::SetOnExit(VoidFunction on_exit)
+    {
+        on_exit_ = on_exit;
+    }
+
+    void StubVoidFunction(StateMachineContext&)
     {
     }
 
-    bool StubBoolFunction(Client::Context&)
+    bool StubBoolFunction(StateMachineContext&)
     {
         return true;
+    }
+
+    bool AlwaysFalseBoolFunction(StateMachineContext&)
+    {
+        return false;
     }
 }

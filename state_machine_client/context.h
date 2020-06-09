@@ -3,7 +3,7 @@
 #include <stack>
 #include <string>
 #include <memory>
-#include "utility.h"
+#include "state_machine_utility.h"
 
 namespace UriParser
 {
