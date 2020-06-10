@@ -23,8 +23,11 @@ namespace UriParser
         auto Stub = [](StateMachineContext &){};
         // Start state
         state_graph.Create(StateID::Start);
+        state_graph.SetStartStateID(StateID::Start);
+
         // Fail state
         state_graph.Create(StateID::Fail, Stub, Stub, T, F);
+        state_graph.SetFailStateID(StateID::Fail);
 
         // End state
         state_graph.Create(StateID::End, Stub, Stub, EndOnEnter, F);

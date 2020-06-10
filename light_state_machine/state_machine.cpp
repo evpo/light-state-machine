@@ -42,7 +42,8 @@ namespace LightStateMachine
     StateMachine::StateMachine(StateGraph &state_graph, StateMachineContext &context)
         :state_graph_(&state_graph),
         is_first_entry_(true),
-        context_(&context)
+        context_(&context),
+        state_id_to_string_converter_(StandardStateIDToStringConverter)
     {
     }
 

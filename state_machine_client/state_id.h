@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "state_machine_interface.h"
 
 namespace LightStateMachine
 {
@@ -32,6 +33,6 @@ namespace LightStateMachine
             Fail
         };
 
-        const std::string &PrintStateID(StateID state_id);
+        std::string PrintStateID(StateMachineStateID state_id);
     }
 }

@@ -6,8 +6,9 @@ namespace LightStateMachine
 {
     namespace Client
     {
-        const std::string &PrintStateID(StateID state_id)
+        std::string PrintStateID(StateMachineStateID state_id)
         {
+            StateID id = static_cast<StateID>(state_id);
             static map<StateID, string> state_id2string =
             {
                 {StateID::Start, "Start"},
@@ -34,7 +35,7 @@ namespace LightStateMachine
                 {StateID::End,  "End"},
                 {StateID::Fail,  "Fail"}
             };
-            return state_id2string[state_id];
+            return state_id2string[id];
         }
     }
 }

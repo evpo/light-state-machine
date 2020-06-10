@@ -6,7 +6,7 @@
 #include "tokenizer.h"
 #include "graph_builder.h"
 #include "context.h"
-#include "assert.h"
+#include "state_id.h"
 
 using namespace std;
 using namespace LightStateMachine;
@@ -28,6 +28,7 @@ namespace UriParser
         if(context.IsEmpty())
             return invalid_result;
         StateMachine state_machine(state_graph, sm_context);
+        state_machine.SetStateIDToStringConverter(PrintStateID);
         while(state_machine.NextState())
         {
         }

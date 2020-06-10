@@ -1,10 +1,12 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include "version.h"
 #include "cli_parser.hpp"
 #include "logger_init.h"
 #include "uri_parser.h"
+#include "plog/Log.h"
 
 using namespace std;
 using namespace stlplus;
@@ -15,11 +17,16 @@ namespace UriParser
     void PrintUsage()
     {
         const char *usage =
-            VER_PRODUCTNAME_STR " " VER_PRODUCTVERSION_STR "\n"
-            "\n"
-            "Usage: uri-parser [--help] [--log <log-file>]\n"
-            "Parses URI from stdin\n"
-            "Example: echo http://example.com | uri-parser";
+            VER_PRODUCTNAME_STR " " VER_PRODUCTVERSION_STR
+            R"(
+Usage: uri-parser [--help] [--log <log-file>]
+Parses URI from stdin
+Options:
+
+    --file <file-with-url>
+    --log <log-file>
+
+Example: echo http://example.com | uri-parser)";
 
         std::cout << usage << std::endl;
     }
@@ -40,6 +47,12 @@ int main(int, char *argv[])
             cli_mode_t::cli_single_mode,
             "log",
         },
+        {
+            "file",
+            cli_kind_t::cli_value_kind,
+            cli_mode_t::cli_single_mode,
+            "file",
+        },
     };
 
     message_handler messages(std::cerr);
@@ -51,6 +64,7 @@ int main(int, char *argv[])
     }
 
     string log_file;
+    string uri_file;
 
     for(unsigned i = 0; i < parser.size(); i++)
     {
@@ -63,6 +77,10 @@ int main(int, char *argv[])
         {
             log_file = parser.string_value(i);
         }
+        else if(parser.name(i) == "file")
+        {
+            uri_file = parser.string_value(i);
+        }
     }
 
     if(log_file.empty())
@@ -73,7 +91,16 @@ int main(int, char *argv[])
     CppProject::InitLogger(log_file);
 
     string uri;
-    std::cin >> uri;
+    if(!uri_file.empty())
+    {
+        std::ifstream stm(uri_file.data(), std::ios_base::in);
+        stm >> uri;
+    }
+    else
+    {
+        std::cin >> uri;
+    }
+
     auto result = ParseUri(uri);
     if(result.id == ResultID::InvalidUri)
     {
