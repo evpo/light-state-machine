@@ -9,6 +9,7 @@
 #include <string>
 #include <memory>
 #include <string>
+#include "assert.h"
 
 #ifdef TRACE_STATE_MACHINE
 #include "plog/Log.h"
@@ -109,6 +110,10 @@ namespace LightStateMachine
 
     StateMachineStateID StateMachine::CurrentState() const
     {
+        if(is_first_entry_)
+        {
+            return state_graph_->GetStartStateID();
+        }
         return current_state_->GetID();
     }
 
@@ -127,6 +132,7 @@ namespace LightStateMachine
 
     StateMachineStateID StateMachine::PreviousState() const
     {
+        assert(!is_first_entry_);
         return state_queue_.back();
     }
 }

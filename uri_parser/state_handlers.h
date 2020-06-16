@@ -8,6 +8,7 @@ namespace UriParser
 {
     bool NotEOS(LightStateMachine::StateMachineContext &context);
     void NextToken(LightStateMachine::StateMachineContext &context);
+    void FailOnEnter(LightStateMachine::StateMachineContext &context);
     bool EndOnEnter(LightStateMachine::StateMachineContext &context);
     bool SchemeCanEnter(LightStateMachine::StateMachineContext &context);
     void SchemeOnEnter(LightStateMachine::StateMachineContext &context);

@@ -26,7 +26,7 @@ namespace UriParser
         state_graph.SetStartStateID(StateID::Start);
 
         // Fail state
-        state_graph.Create(StateID::Fail, Stub, Stub, T, F);
+        state_graph.Create(StateID::Fail, FailOnEnter, Stub, T, F);
         state_graph.SetFailStateID(StateID::Fail);
 
         // End state

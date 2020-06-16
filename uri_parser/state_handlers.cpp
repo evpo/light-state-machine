@@ -41,6 +41,11 @@ namespace UriParser
             context.SetFailed(true);
     }
 
+    void FailOnEnter(StateMachineContext &context)
+    {
+        context.SetFailed(true);
+    }
+
     // End
     bool EndOnEnter(StateMachineContext &context)
     {
